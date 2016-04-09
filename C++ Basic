@@ -1,0 +1,306 @@
+Lecture 6 C++
+***Testing: 
+	black box testing: test all features
+		- values for data
+		- positive VS negative
+		- ranges of value, boundaries(edge cases)
+		- multiple boundaries(corner cases)
+
+***C++ intro
+Sample program:
+	#include <iostream>
+	using namespace std;
+	int main(){
+		cout << "Hello world" << endl;
+		return 0; // optional 
+	}
+C++ does not have access stdio.h(printf) *** do not put this in any C++ program
+include header iostream
+	- get access to the global variable 
+		std::cout std::cin std::endl
+Compile(g++)
+	$> g++ hello.cc
+	create an executable a.out
+	$> ./a.out // run the executable
+	$> g++ hello.cc -o helloworld    // rename the executable
+
+C++ I/O:
+	c++ comes with 3 stream variables:
+		cout: send output to std output
+		cin: get input from std input
+		cerr: send output to std error
+	Output operation:
+		cout << x;
+	Input operation:
+		cin >> x;
+	cin >> x >> y; // 1. if x read failed => output default #
+				   // 2 x = 32, y is not value => output X
+	// too many input: do not care
+	// too few input: failed
+	Once a read fails, all subsequent reads fail
+
+Lecture 7 C++ input/output
+	if a read fails, then cin.fail() will be true
+	if the read failed due to EOF, then cin.eof() is also true
+	Ex: read ints from stdin. Terminate if we encounter a non-int or EOF
+		while(true) {
+			cin >> x;
+			if(cin.fail()) break;
+			cout << x;  
+		}
+	In C++, there is an implicit conversion from cin(istream) to void*
+		in(cin) is true(non-zero) if !cin.fail()
+				is false(0) if cin.fail()
+		if(!cin) break;
+		cascading operator: cin >> x >> y;   //cin>>x => cin
+	Ex2:
+		while(true) {
+			cin >> x;
+			if(cin.eof()) break;
+			if(cin) cout << x << endl;
+			else {
+				cin.clear(); //clear both fail and EOF(flags)
+				cin.ignore(); // ignore the failed field  1Hello123 => 1 123
+			}
+
+	C++ uses IO manipulators to format output
+		cout << hex << i << dec; // cout << hex side effect: change outpu format to hexdecimal 
+		// then change back to decimal
+		#include <iomanip>
+		The stream abstraction can be used with other data streams
+		#include <fstream>
+			ifstream  input file stream, read from file
+			ofstream  write to file
+			e.g.:ifstream file("");
+		#include <sstream>
+			istringstream ostringstream
+			acquired the file as part of initialization, treat a string as a data stream
+			Ex: ostringstream ss; //pack up data
+				string s = ss.str(); //ss is not string
+				cout << s << endl;
+			Ex2: istringstream ss(s);
+				 int n;
+				 if(ss >> n) break; // try to read an integer
+String:
+	In C, use character arrays(null terminated) to represent a string
+	- mannal memort management
+	- overwriting \0
+	C++ string:
+	- automatic resize(char array hidden)
+	- safe
+	std::string s = "Hello"; // "Hello" is c-style string
+	// s points to heap, but s is not a pointer(internally points to heap, wrapper to c-style char*)
+	There is an implicit conversion from a c-style string(char*) to c++ string, but reverse is not true
+	#include <string>
+	getline(cin,s); // reads/stores from the first non-space(?) characters to new line into s
+		// return type istream&,return cin
+	 ??? ignore prefix space?
+
+	operations:
+		equality (s1 == s2) // not pointer any more
+			!=, <, >, <=, >=
+		concatenation in C: strcat(c1+c2) mutate c1
+			in c++: c1 + c2 //generate new str
+		s[i] //s is not array/pointer; but can access individual chars(?!!)
+		filename.c_str(); // get a c style string
+		ifstream file(filename); // need c-style string for filename
+
+Default Arguments:
+	A parameter with a default argument cannot be followed by a parameter without a default argument
+	void test(int num=0, string city = "waterloo") //second string must have default value
+		=> void test(); void test(int); void test(int, string)
+	test(); //0,waterloo
+	test(2); //2, waterloo
+	test(,"Toronto") // does not work(but cute *-*)
+	test("Toronto") // -^- No no
+
+Function overloading:
+	You can have multiple functions with the same name as long as they have different number of parameters or types of paramtres
+	void test(int num=0, string city = "waterloo") //second string must have default value
+		=> void test(); void test(int); void test(int, string)
+	1 void test() //cannot implement this function
+	2 void test(string tmp = "hello", int x); // last int need have default
+	3 void test(string) // valid
+	4 bool test(int num, string temp); //cannot overload by just changing the return type
+
+*** Mutual recursion: forward declare the funcitions
+
+Pointers: int *p = &d;
+		  int **pp = &p;
+Arrays: build-in contruct to store a collection of values 
+		int a[] = {1,2,4,8};
+		The name of an array is shorten hand for the address of the first element of the array
+		a <=> &a[0]
+***** pointer != array
+
+Constants: must be initialied 
+	const int *p = &n; // p is pointer points to a const int
+		p = &n;
+		*p = 10; // cannot happen!
+		n = 10;
+	int* const p = &n; // const pointer p
+		p = &m; // cannot happen!
+		*p = 10;
+	const int* const p = &n; // const pointer p to a const int
+		p = &m;
+		*p = 10; //both cannot happen
+	const always applies to the left unless no left, then to the right
+
+Reference:
+	c++ has a ptr-like type called Reference
+	int y = 10;
+	int &z = y;// z is a reference to y, somewhat like a const pointer to y
+	a reference is a constant pointer with automatic derefering
+	z = 100; // => y = 100;
+	int *p = &z; // p points to y
+	// z is an alias/another name for y
+	- a reference must be initialized
+		cannot have int& z;
+	- must initialize to something that has storage location(has an address)
+		int &z = 5; // 5 does not have address
+		int &z = y+y; //y+y has tmp storage 
+		//both won't compile
+	- cannot create:
+		1 a pointer to a reference
+		2 a reference to a reference
+		3 an array of references
+
+	Ex: cin >> x; <=> operator>>(cin,x)
+		istream& operator>>(istream& in, int& n) {
+			in >> n;
+			return in;
+		} // change need to reflect to cin => not const
+		// return type without& may create cope of istream every time
+	Ex2: void foo(const ReallyBig& rb)
+		- pass by reference; prevent creating copy
+		- cannot change the value since const(read only)
+	*** always prefer pass by reference to const over pass by value for anything bigger than an int ***
+	void bar(const int& x)
+		bar(5); 
+		bar(y+y);
+		const int& x = 5; 
+		//all compile   x = 10 not allowed, but 5 = 10 won't happen
+
+Dynamic Memory:
+	Always use the stack, unless:
+		1 the value must outlive the variables life
+		2 the size of an array is unknown or likely to change
+		3 for large memory allocation
+	C: malloc/free
+	C++ use new/delete
+		- new type-aware
+		Node* np = new Node;
+		delete np; // expect a pointer to heap
+		// delete &n; compile but will give run-time error
+		int *p = new int[size];
+		delete p; // behaviour not defined
+		delete []p; //correct way
+	Use valgrind to check all allocated memories freed
+	dangling pointer: pointer to a stack address that is no longer reserved for our use
+
+Operators:
+	- c++ operators are implemented as functions
+	- c++ functions can be overloaded 
+	We can overload operators to give meaning to these operators for user defined types
+	Ex: 
+		struct Vec{
+			int x;
+			int y;
+		};
+		Vec v1,v2;
+		Vec v3 = v1+v2; // overload +
+		Vec operator+(const Vec& a, const Vec& b) {
+			Vec v;
+			v.x = a.x + b.x;
+			v.y = a.y + b.y;
+			return v;
+		}
+		// if without const for parameters
+		Vec v4 = v1+v2+v3; //v1+v2 gives tmp address
+		Vec v5 = 3 * v4;
+		Vec operator*(const int k, const Vec& v1){
+			Vec v;
+			v.x = k*v1.x;
+			v.y = k*v1.y;
+			return v;
+		}
+		Vec v6 = v5*3; //types do not match for the above
+		Vec operator*(const Vec& v1,const int k) {
+			return k*v1;
+		}
+	Ex2:
+		struct Grade{
+			string name;
+			int grade;
+		};
+		ostream& operator<<(ostream& out, const Grade& g) {
+			out << "Student: " << g.name;
+			out << "Grade: " << g.grade << "%/n";
+			return out;
+		}
+		istream& operator>>(istream& in, Grade& g) {
+			in >> g.name;
+			in >> g.grade;
+			if(g.grade < 0) g.grade = 0;
+			if(g.grade > 100) g.grade = 100;
+			return in; 
+		}
+
+Preprocessor:
+	source code-> Preprocessor -> output(changed source code) -> Compiler ->
+	#include : Preprocessor directive => copy and paste
+		<iostream>
+		"vector.h" //looking for this file in current directory
+	g++ -E (-P) (no line number) : only run Preprocessor print changed source code
+	#define VAR VALUE : search for VAR and replace it by VALUE
+	*** Preprocessor does not know about c++, so weird code could happen
+
+Condition compilation:
+	windows  needed winMain
+	linux needed main
+	- requires manually changing the value for the OS variable
+	g++ -DOS=Unix // define OS to Unix
+	#define VAR
+	#ifdef : true if VAR is defined
+	#ifndef : true if VAR is not defined
+	g++ -DOS //OS set to default 1
+	For smart testing:
+		#ifdef DEBUG
+			...debug info ...
+		#endif
+
+Seperate compilation:
+	Seperate out code into 
+		# interface files(headers .h)
+			- uses defined types
+			- function headers(declarations)
+		# implementation file(.cc)
+			- actual implementation of functions
+	Compile multiple files:
+		1 g++ *.cc
+		2 g++ main.cc vector.cc
+	*** Never compile a header file(meant to be included), this is not seperate compilation ***
+	We want to compile each group of file seperately then merge them to produce the executable
+	By default, g++ does
+		Preprocess -> compile -> linker
+	g++ -c : 
+		- compile, do not link(do not produce executable)
+		- produce object files(.o)
+			Contains:
+				1 compiled code
+				2 list of needs
+				3 list of haves
+	Once we have all .o files:
+		g++ main.o vector.o : calls the linkers
+
+	#ifndef VECTOR_H
+	#define VECTOR_H
+		... actual headers
+	#endif
+
+	*****never compile .h files
+	*****never include .cc files
+	*****never use "using namespace std;" in .h files
+		Why? create extra dependency for clients
+		Instead use std::string, std::fstream etc
+	

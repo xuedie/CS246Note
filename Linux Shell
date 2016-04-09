@@ -1,0 +1,228 @@
+Linux Shell
+	Shell: interface to operting system
+	1. Graphical Shell:
+		+ intuitive to use
+		- difficult/impossible to do things that UI is not designed for 
+	2. Command-line shell:
+		get a prompt, type commands
+		- not intuitive: very steep learning curve
+		+ absolutely brilliant once over the curve 
+
+Linux Shell System
+	contains files in a tree structure
+	- Directory: can contain other files
+	- "ordinary" file: cannot contain files
+
+	Absolute path: location of a file by specifying a path starting at the root 			   directory
+	Current directory: the location you are currently in
+		$> pwd	present working directory
+	Changing directory:
+		$> cd [path to a directory]
+	Relative path: starts from current directory
+		/u/nanaeem/cs246/1159 + a3/q2(relative path) => absolute path
+
+Special Directories:
+	1. . current direct tree
+		$> cd .
+	2. .. parent directory
+		$> cd ../.. (grandparent)
+	(relative paths)
+	3. ~ home   directory
+		cd ~ or cd
+	4. ~userid  go to another user's diretcory(permittion needed)
+	(absolute paths)
+		cd - previous directory
+
+Listing Command:
+	$> ls
+	Display the contents of the directory except for hidden files(starting with . give either absolute or relative paths)
+	$> ls -a 
+	Display all files
+	$> ls *.txt
+	Wildcard matching:
+		Globbing pattern, display everything ends with .txt
+		-Single and double quotes both prevent the expansion of globbing patterns
+
+Working with a file:
+	Display the content of the file
+		$> cat [path file]
+	To kill a program/process
+		ctrl^D send kill program signal
+	To indicate end of input
+		ctrl^D send an EOF signal
+
+	$> command wigs > input < output
+	Every process comes with 3 streams:
+		standard input(stdin):
+			- default: keyboard
+			- input redirection: < change it to a file
+		standard output(stdout):
+			- default: screen
+			- output redirection: > to a file 
+		standard error(stderr):
+			- default: screen 
+			- redirection: 2>
+				redirect to stdout 2>&1 (&1 to ensure 1 is a file descriper not a file)
+		stdout is buffered(stored), stderr is not 
+		>> append
+
+Pipe:
+	stdin 1 -> prog1 ->stdout 1 = stdin 2 -> prog2 -> stdout 2
+	Ex1: print a duplicate free list of all words in words*.txt
+		cat words*.txt | sort | uniq
+	Ex2: use the output of a program as an argument to another
+		- use backquotes ``
+		Today is `date`    Today,is,`date` are seperate arguments
+		"Today is `date`" still allow embedded commands to execute, one argument
+		'Today is `date`' date will not executed 
+		`date` almost= $(date)
+
+Search within a file:
+	grep: global regular expression pattern
+	egrep: extended grep
+		$> egrep [pattern] [file]
+		Output: prints every line in file that contains the pattern
+		pattern is a regular expression
+		Special character:
+			[abc] = a|b|c     any one character from this list
+			[^abc] = any one character not in this list
+			? = 0 or 1 of the preceeding expression
+			* = 0 or more of the preceeding expression
+			+ = 1 or more of the preceeding expression
+			. = any one character
+			.* = 0 or more 
+			.+ = non-empty str of any character
+			^ = must begin with this pattern
+			$ = must end with this pattern
+			a-z = range from a to z
+		Ex:
+			"cs ?246" = cs246|cs 246
+			"(cs )?246" = 246|cs 246
+			"(cs ?)?246" = 246|cs246|cs 246
+			"cs246|CS246" = "(cs|CS)246"
+			"(c|C)(s|S)246"
+			"^cs246$" = lines containing just cs246
+		To escape a character with special meanings, use \
+			\* [a*]
+		Example1: print all words of even length
+				egrep "^(..)+$"
+		Example2: print all files in the current directory whose name contains 			 exactly 1 a
+				ls|egrep "^[^a]*a[^a]*$"
+
+Permission:
+	$> ls -l  long listing 
+	-rwxrw-r--        2           nanaeem        staff  125       date  abc.txt
+	type+premissions| # of files |owner of file |group |file size|last modified
+
+	-(type)  rwx(user bits)    rw-(group bits)              r--(other bits)
+			 owner permission| all other users in the group|all other users
+	type:
+		l   link
+		d   directory
+		-   ordinary file 
+	permission:
+		r   read permission
+		w   write permission
+		x   execute permission
+
+	  |ordinary file     				| directory
+	--|---------------------------------|---------------
+	r | read file content 				| read contents
+	w | write to a file                 | add/remove files
+	x | try to execute file as a program| navigate into it
+
+	* for directory only r,w => cannot open the directry
+					x not r  => ls denied, if some file inside r, can access 			 the file
+	* Owner of the file always has permission to change file permission
+		No one else has the permission(except admin)
+
+	Change mode:
+		$> chmod mode file
+		mode: ownership(u-users, g-group, o-others, a-all)
+			  operation(+ add, - remove, = set exactly)
+			  permission(r/w/x)
+		Ex1: give others the read permission
+				$> chmod o+r file
+		Ex2: revoke execute from group
+				g-x
+		Ex3: make everyone's permission to exactly rx
+				a=rx
+
+Shell Variables:
+		$> x=1     *** no spaces *** create a variable x with string value 1
+		$> echo $x or ${x}
+	$PATH   global shell variable 
+
+Shell Scripts:
+	Script is a text file containing linux commands executed as a program
+		#!/bin/bash     -shebang line
+	To execute: 
+		1 add current directory to the PATH
+		2 execute using ./basic (chmod a+x script forwards)
+	Arguments:
+		argument i is accessinle through $i
+		$> ./script val1 val2
+		    $0       $1   $2
+		*** no given argument: default empty string ***
+		Ex1: Check whether a word is in the dictionary
+			#!/bin/bash
+			egrep "^${1}$" file
+		Ex2: A good password is not in the dictionary. Is the arg a good 		 password?
+			#!/bin/bash
+			egrep "^${1}$" dict > /dev/null    // redirect here to throw output
+		*** Every program returns a status code
+			0 success
+			non-zero failure
+			$? has the status code of the last executed command ***
+			egrep $1 = 0 match
+					 = 1 not found
+
+			if [ $? -eq 0 ]; then
+				echo "not a good password"
+			else 
+				echo "maybe a good password"
+			fi
+		*** = != string comparsion
+			-eq -ne -le -lt -gt -ge integer comparsion ***
+***** ./printer > file 2>$1   stdout->file stderr->file
+	  ./printer 2>$1 > file   stdout->file stderr->terminal *****
+
+Lecture 5
+	use $# to get the numbers of arguments to a script/function
+
+	usage(){
+		echo "something"
+		exit 1 //fail to run
+	}
+	if [ ${#} -ne 1 ]; then
+		usage
+	fi
+
+while example1: print from 1 to $1
+	x=1
+	while [ $x -le $1 ];do
+		echo ${x}
+		x=$((x+1))
+	done
+for example2: rename all .C files to .cc 
+	mv hello.C hello.cc
+	file=hello.C
+	mv ${file} ${file%C}cc
+	*** use % to move suffix and # to move prefix ***
+	*** for x in a b c d; do echo ${x}; done *** print a b c d in 4 seperate lines
+	for name in *.C; do
+		mv ${name} ${name%C}cc
+	done
+
+	Example3: how many times do $1 appears in file $2
+		x=0
+		for word in `cat $2`; do
+			if [ $word = "$1" ]; then
+				x=$((x+1))
+			fi
+		done
+		echo ${x}
+	*** if $1=hello world, then it has two argument, so make "$1"***
+
+*** cal calendar
+	cal | awk '{print #6}' | egrep [0-9] | tail -1 ***

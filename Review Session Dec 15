@@ -1,0 +1,130 @@
+Review Session Dec 15
+
+class BinTree{ //virtual void foo, bar;
+	int data;
+	BinTree *left, *right;
+	virtual void foo(), bar();
+};
+
+class BinTreeI:public BinTree{
+	int data2;
+	void foo();
+};
+
+class BinTree2: public BinTree{
+	std::string str;
+};
+
+BinTree* t = new BinTreeI;
+void foo() => BinTreeI foo
+
+BinTree t = new BinTree;
+|
+v
+BT: vptr(8 bytes) =>BinTree vtable(virtual functions)
+//does not exist if no vitural function available
+
+BinTree& BinTree::operator=(const BinTree &other) {
+	if(other == this) {return *this;}
+	delete left,right; //...
+	data = other.data;
+	left = other.left? new BinTree(*other.left): NULL;
+	right = other.right? ...;
+	...;
+	return *this;
+}
+ *** exceptions
+operator
+----
+...
+---
+foo
+---
+main
+(stack) // stack unwinding kill all stacks without any exceptions in functions other than main
+int *i = new int;
+int *j = new int; // if fails, leak i
+delete i;
+delete j;
+RAII: resource allocation is initialization
+	at all time, things in stack need to be responsible for memory leak
+auto_ptr<int> i(new int);
+auto_ptr<int> j(new int);
+
+Exception gurantee:
+	1 no throw: promise not throw exceptions //not realistic
+	2 strong gurantee: either work or throw exceptions, but not both
+		// change any field before, change them back again
+		// does not do anything except throw exceptions
+	3 basic gurantee: data still make sense and "safe"
+	4 no gurantee
+
+BinTree& BinTree::operator=(const BinTree &other) {
+	if(other == this) {return *this;}
+	BinTree* tmp1,tmp2;
+	tmp1 = other.left? new ...: NULL;
+	try{
+		tmp2 = ...? new ...: NULL;
+	} catch(...) {
+		delete tmp1;
+		throw;
+	}
+	delete left;
+	delete right;
+	left = tmp1;
+	right = tmp2;
+	return *this;
+}
+
+copy and swap!!!
+BinTree &operator=(const BinTree& other) {
+	BinTree tmp(other); //copy ctor:almost always strong gurantee
+	swap(tmp);
+	return other; // dtor of tmp called
+}
+
+void BinTree::swap(BinTree& other) {
+	int tmpdata = other.data;
+	BinTree* tmpleft = other.left;
+	//...
+	other.left = left;
+	other.right = right;
+	other.data = data;
+	left = tmpleft;
+	right = tmpright;
+}
+
+exceptions: out-of-range, bad-cast, bad-alloc
+
+	BinTree(virtual operator=)
+	/                     \
+BinTreeI(virtual =)      BinTree2(virtual =)
+
+BinTree *bt1 = new BinTreeI;
+BinTree *bt2 = new BinTreeI;
+*bt1 = *bt2; //call BT's operator= without virtual opertor=
+virtual BinTreeI& BinTreeI::operator=(const BinTree& other) {
+	//BT1 t = static_cast<BT1>(&other); =.=
+	//BinTreeI tmp(*t)
+	// static_cast: bt can cast to bti or bts; bti cannot cast to bts
+	BinTreeI tmp(other);
+	swap(tmp);
+	return *this;
+}
+
+BinTree *bt1 = new BinTreeI;
+BinTree *bt2 = new BinTreeS;
+*bt1 = *bt2;
+
+Factory pattern: create other classes
+Visitor pattern:
+	AddTraversal{virtual void visit(BT1)
+				 virtual void visit(BTS)}
+	BTI{
+		virtual void Traverse(Traversal& t) {
+			visit(*this);  // double dispatch
+		} 
+	BT* bt = new BTI;
+	bt->traverse(*t); // call BTI::traverse
+	}
+Decorator pattern:
