@@ -1,6 +1,6 @@
-Design Patterns
+# Design Patterns
 	If you have "this" kind of problem, then "this" technique might be useful
-	Singleton Pattern:
+## Singleton Pattern:
 		We have a class C, we want to enforce that only one instance of C is ever created
 		EX: Finances
 			wallet - only one, a singleton
@@ -10,11 +10,12 @@ Design Patterns
 		- multiple calls to atexit will stack up the functions LIFO
 		Since the wallet ctor is accessible, anyone can create a wallet; that breaks the singleton Pattern
 
-	Encapsulation:
+## Encapsulation:
 		Treat objects like black boxes/capsules
 			- hide implementation details
 			- client code has access to an exposed interface
 
+```cpp
 		struct Vec{ //default visibility: public
 			Vec();
 		private:
@@ -24,6 +25,7 @@ Design Patterns
 		};
 		Vec v1(1,2);
 		cout << v1.x << v1.y; // won't compile
+```
 		Advice: at least make all fields private
 
 		C++ "class" keyword: default visibility is private
@@ -82,8 +84,8 @@ Design Patterns
 				| +getX():integer  // + for public, - for private
 				------------
 
-	Relationship between classes:
-		Composition:
+# Relationship between classes:
+## Composition:
 			embed an object within another object
 			1 provide a 0 parametre ctor
 			2 pre-empt the call to the 0 parametre ctors of Vec by calling some other ctor
@@ -102,7 +104,7 @@ Design Patterns
 					- if B cannot exist on its own
 					- if A is destroyed, B is destroyed
 					- if A is copied, B is copied
-	Aggregation:
+## Aggregation:
 		parts in a catalog
 			- if when A is destoryed, B continues to live
 			- if A is copied, B is not copied
@@ -110,7 +112,7 @@ Design Patterns
 				Duck* ducks[MAXDUCKS]; //ducks in a pond
 			};
 
-	Inheritance:
+## Inheritance:
 		Consider collection of any type of book
 			- array of void*
 			- union type
@@ -197,7 +199,7 @@ Design Patterns
 					cout << collection[i]->isHeavy();
 					// Polymorphic array
 				}
-			Polymorphism: ability to accommdate multiple types under one abstraction
+## Polymorphism: ability to accommdate multiple types under one abstraction
 			When dtor for subclasses runs, the dtor of super class automatically called
 
 		Pure virtual/abstract/concerte
@@ -236,16 +238,16 @@ Design Patterns
 
 	Pure Virtual: can have an implementation, but the subclasses must implement the pure virtual method to be concret.
 
-Observer Pattern:
+## Observer Pattern:
 	Subject                                   Observer
 	- generates data                         - interested in the data
 	- provide a subscribe method             - provide a notify method
 
-Decorator Pattern:
+## Decorator Pattern:
 	Decorator is a component.
 	Decorator has a (or, owns a) component.
 
-Factory Pattern:
+## Factory Pattern:
 	Factory pattern often works well with the singleton pattern.
 	Ex:
 		Sort
@@ -302,7 +304,7 @@ Factory Pattern:
 				}
 			};
 
-C++ Templates:
+# C++ Templates:
 	Template class: generalizing a class by parameterizing on one or more types
 			class Node {
 				int data;
@@ -320,7 +322,7 @@ C++ Templates:
 			Node<char>* charList = new Node<char>('a',Node<char>('b',NULL));
 			Node<Node<int> >* listOFlists;
 
-Standard Template Library(STL):
+# Standard Template Library(STL):
 	Dynamic resizing array
 	std::vector
 		#include <vector>
