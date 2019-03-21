@@ -1,12 +1,13 @@
-C++ Classes
-	OOP: we can put functions inside a struct
-	struct  Student {
-		int assn, mt,final;
-		float grade() { ... }
-	};
-	struct s = {.....}; // c-style initialization
-	s.grade(); //calling a function inside a struct 
-	
+# C++ Classes
+## OOP: we can put functions inside a struct
+```cpp
+struct  Student {
+	int assn, mt,final;
+	float grade() { ... }
+};
+struct s = {.....}; // c-style initialization
+s.grade(); //calling a function inside a struct 
+```
 	Class is a struct that can contain functions 
 		***C++ has a class keyword
 	An instance of a class is called an object
@@ -17,19 +18,20 @@ C++ Classes
 		a method has a hidden parametre called "this"
 		"this" : a pointer to the object on which the method was called
 
-	Initializing Objects:
-		c-style initialization requires compile time constants
-		c++ allows special methods to construct objects 
-			---- constructors(ctor)
-		Ex:
-			struct Student{
-				int assn, mt,final;
-				Student(int assn, int mt, int final) {
-					this->assn = assn;
-					mt = mt;
-					final = final;
-				}
-			};
+## Initializing Objects:
+c-style initialization requires compile time constants
+c++ allows special methods to construct objects ---- constructors(ctor)
+Ex:
+```cpp
+struct Student {
+	int assn, mt,final;
+	Student(int assn, int mt, int final) {
+		this->assn = assn;
+		mt = mt;
+		final = final;
+	}
+};
+```
 			heap: Student* bobby = new Student(60,80,70);
 			stack: Student bobby = Student(70,0,0);
 				OR Student bobby(..,..,..);
@@ -53,12 +55,13 @@ C++ Classes
 			Vec v = {1,2}; // no longer compiles
 			Vec v(1,2); // right way
 
-		Ex:
-			struct Mystr
-			{
-				const int a;
-				int &myref; // both must be initialized
-			};
+Ex:
+```cpp
+struct Mystr {
+	const int a;
+	int &myref; // both must be initialized
+};
+```
 		c++ disallows field initializers
 					  Initializing const and reference in ctor body
 		WHERE???
@@ -91,14 +94,16 @@ C++ Classes
 				- copy ctor
 				- dectructor
 				- copy assignment operator
-		For a class C, the copy ctor takes one parametre, a reference to const of type C
+For a class C, the copy ctor takes one parametre, a reference to const of type C
+```cpp
 			struct Student
 			{
 				Student(const Student& other):assn(other.assn),mt(other.mt),final(other.final){}
 				// build-in copy ctor
 			};
-
-		Ex: 
+```
+Ex: 
+```cpp
 			struct Node
 			{
 				int data;
@@ -108,8 +113,10 @@ C++ Classes
 			Node* np = new Node(...);
 			Node m = *np; // copy ctor
 			Node* npCopy = new Node(*np);
-			The default copy ctor does a shallow copy
-			Whenever dynamic memory is involved(the object is not continues), you most likely want a deep copy
+```
+The default copy ctor does a shallow copy
+Whenever dynamic memory is involved(the object is not continues), you most likely want a deep copy
+```cpp
 				Node(const Node& other) {
 					data = other.data;
 					if(other.next) {
@@ -118,7 +125,7 @@ C++ Classes
 					else next = NULL;
 				}
 				Node(const Node& other): data(other.data),next(other.next? new Node(*other.next):NULL) {}
-
+```
 			A copy ctor is called:
 				1 when contructing an object as a copy of another
 				2 when an object is passed by value
@@ -134,23 +141,24 @@ C++ Classes
 			Node m = 4;
 			*** string str = "hello"; std::string has a 1 parametre ctor, with type const char*
 
-	Destructor:
-		when an object is detroyed, a special method called the Destructor runs
-		Stack allocated object is destroyed when it goes out of scope(stack popped out)
-		Heap allocated object is destroyed when it is deleted
-		All classes come with a dtor calls the dtors on fields that are Objects
-			- each class has one dtor which takes 0 parametre
-			- dtor name is the name of the class prefixed with ~
-		Ex:
+## Destructor:
+when an object is detroyed, a special method called the Destructor runs
+Stack allocated object is destroyed when it goes out of scope(stack popped out)
+Heap allocated object is destroyed when it is deleted
+All classes come with a dtor calls the dtors on fields that are Objects
+	- each class has one dtor which takes 0 parametre
+	- dtor name is the name of the class prefixed with ~
+Ex:
+```cpp
 			Node* np = ...;
 			delete np; // cause leak on further nodes
 			~Node() {
 				delete next;
 			} // recursive call, calling delete on NULL is safe
-
+```
 	**** Node:: in the context of Node(inside .cc files)
 
-	Assignment operator:
+## Assignment operator:
 		Student bobby(billy); // call copy ctor
 		Student jane; // call 0 parameter ctor
 		jane = bobby; // => jane.operator=(bobby) assignment operator
@@ -222,8 +230,9 @@ C++ Classes
 		for input/output operator: use functions!
 			v2 << (v1 << cout); //UGLY
 
-Lecture 15 Const, static, design patterns, singleton pattern, encapsulation
+# Lecture 15 Const, static, design patterns, singleton pattern, encapsulation
 Const:
+```cpp
 	struct Student {
 		mutable int numcalls;
 		float grade() const { // promise will not change field 
@@ -232,6 +241,7 @@ Const:
 	};
 		const Student billy(60,70,60);
 		billy.grade(); //without mutable, const method, does not change but compiler won't allow
+```
 	
 	const method does not change the fields
 	const object can only call const methods
